@@ -1,55 +1,45 @@
-import React from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { useSession, signIn, signOut } from 'next-auth/react';
+import Image from "next/image";
+import Link from "next/link";
+import { auth } from "@/auth";
+import { signIn, signOut } from "auth";
 
-const Navbar = () => {
-    const { data: session } = useSession();
 
-    const handleLogin = async () => {
-        try {
-            await signIn('github');
-        } catch (error) {
-            console.error("Login failed", error);
-        }
-    };
-
-    const handleLogout = async () => {
-        try {
-            await signOut();
-        } catch (error) {
-            console.error("Logout failed", error);
-        }
-    };
+const Navbar = async () => {
+    const session = await auth();
 
     return (
-        <header className="px-5 py-3 bg-black shadow-sm font-work-sans">
+        <header className="px-5 py-3 bg-white shadow-sm font-work-sans">
             <nav className="flex justify-between items-center">
-                <Link href="/" >
-                    <Image src="/logo.png" alt="logo" width={144} height={30} />
-                </Link>
-                <div className="flex justify-center gap-5">
-                    {session ? (
-                        <>
-                            <Link href="/STARTUP" >
-                                <span className="cursor-pointer">Create Startup</span>
-                            </Link>
-                            <button onClick={handleLogout} className="cursor-pointer">
-                                <span>Logout</span>
-                            </button>
-                            <Link href={`/users/${session.user?.id}`} passHref>
-                                <span className="cursor-pointer">{session.user?.name || 'User '}</span>
-                            </Link>
-                        </>
-                    ) : (
-                        <button onClick={handleLogin} className="cursor-pointer">
-                            <span>Login</span>
-                        </button>
-                    )}
+                <div className="flex items-center gap-5 text-black">
+                    <Link href="/">
+                        <Image src="/logo.png" alt="Logo" width={144} height={30} />
+                    </Link>
                 </div>
+
+                {session ? (
+                    <>
+                        <form action={async () => {
+                            "use server";
+                            await signOut({ redirectTo: "/" });
+                        }}>
+                            <button type="submit">Logout</button>
+                        </form>
+
+                        <Link href={`/user/${session?.user?.id}`}>
+                            <span>{session?.user?.name}</span>
+                        </Link>
+                    </>
+                ) : (
+                    <form action={async () => {
+                        "use server";
+                        await signIn("github");
+                    }}>
+                        <button type="submit">Login</button>
+                    </form>
+                )}
             </nav>
         </header>
     );
-}
+};
 
 export default Navbar;

@@ -1,9 +1,8 @@
-import React from 'react';
+export default function Home() {
+    return(
+        <>
+            <h1 className="text-2xl">HOME</h1>
 
-export default function Layout({ children }: Readonly<{ children: React.ReactNode }>) {
-    return (
-        <main className="font-work-sans">
-            {children}
-        </main>
+        </>
     );
 }
